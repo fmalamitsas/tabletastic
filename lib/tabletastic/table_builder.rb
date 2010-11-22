@@ -65,24 +65,19 @@ module Tabletastic
     end
 
     def head
-      content_tag(:thead) do
-        content_tag(:tr) do
-          @table_fields.inject("") do |result,field|
-            result + content_tag(:th, field.heading, field.heading_html)
-          end
-        end
-      end
+      tr = @table_fields.inject("") { |result,field|  result + content_tag(:th, field.heading, field.heading_html) }
+      thead = "<thead>" + tr.html_safe + "</thead>"
+      content_tag(:tr, thead, {}, false)
     end
 
     def body
-      content_tag(:tbody) do
-        @collection.inject("\n") do |rows, record|
-          rowclass = @template.cycle("odd","even")
-          rows += @template.content_tag_for(:tr, record, :class => rowclass) do
-            cells_for_row(record)
-          end + "\n"
-        end
+      table = @collection.inject("\n") do |rows, record|
+        rowclass = @template.cycle("odd","even")
+        rows += @template.content_tag_for(:tr, record, :class => rowclass) do
+          cells_for_row(record).html_safe
+        end + "\n"
       end
+      content_tag(:tbody, table, {}, false)
     end
 
     def cells_for_row(record)
